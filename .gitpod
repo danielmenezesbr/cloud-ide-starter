@@ -1,0 +1,9 @@
+tasks:
+  - before: |
+       ./cloud-ide-starter.sh
+vscode:
+  extensions:
+    - ms-python.python
+    - ms-toolsai.jupyter
+    - ms-toolsai.jupyter-keymap
+    - ms-toolsai.jupyter-renderers
