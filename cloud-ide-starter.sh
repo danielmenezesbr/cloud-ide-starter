@@ -16,6 +16,7 @@ decrypted_json=$(echo -n "$decoded_payload" | openssl enc -aes-256-cbc -d -a -pb
 # echo "Decrypted JSON:"
 # echo "$decrypted_json"
 
+WORKSPACE_BASE="/workspace"
 ENV_VARS_FILE="$WORKSPACE_BASE/cloudIdeStarterEnvVars.sh"
 
 # Check if the environment variables file exists
