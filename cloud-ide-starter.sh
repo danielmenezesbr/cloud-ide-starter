@@ -35,6 +35,7 @@ fi
 source ~/.bashrc
 source $ENV_VARS_FILE
 
+cd $WORKSPACE_BASE
 git clone $CLOUD_IDE_STARTER_INITIAL_REPO
 REPO_NAME=$(basename -s .git "$CLOUD_IDE_STARTER_INITIAL_REPO")
 cd "$REPO_NAME"
