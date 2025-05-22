@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 echo -n "Enter Secret: "
 read -s secret
@@ -36,7 +36,8 @@ source ~/.bashrc
 source $ENV_VARS_FILE
 
 cd $WORKSPACE_BASE
+pwd
 git clone $CLOUD_IDE_STARTER_INITIAL_REPO
 REPO_NAME=$(basename -s .git "$CLOUD_IDE_STARTER_INITIAL_REPO")
 cd "$REPO_NAME"
-eval "$CLOUD_IDE_STARTER_INITAL_SCRIPTD"
+$CLOUD_IDE_STARTER_INITAL_SCRIPT
