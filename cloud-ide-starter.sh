@@ -37,8 +37,13 @@ if [[ ! -f "$ENV_VARS_FILE" ]]; then
   # echo "Decrypted JSON:"
   # echo "$decrypted_json"
 
-  WORKSPACE_BASE="/workspace"
-  ENV_VARS_FILE="$WORKSPACE_BASE/cloudIdeStarterEnvVars.sh"
+WORKSPACE_BASE="/workspace"
+
+if [[ ! -z "${CODESPACES}" ]]; then
+  WORKSPACE_BASE="/workspaces"
+fi
+
+ENV_VARS_FILE="$WORKSPACE_BASE/cloudIdeStarterEnvVars.sh"
 
   # Check if the environment variables file exists
   if [[ ! -f "$ENV_VARS_FILE" ]]; then
