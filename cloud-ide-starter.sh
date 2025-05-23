@@ -1,65 +1,70 @@
 #!/bin/bash
 set -e
 
-# Prompt for Secret with asterisks
-echo -n "Enter Secret: "
-secret=""
-stty -echo
-while IFS= read -r -n1 char; do
-  if [[ $char == "" || $char == $'\n' ]]; then
-    break
-  fi
-  echo -n "*"
-  secret+="$char"
-done
-stty echo
-echo
-
-# Prompt for Payload with asterisks
-echo -n "Enter Payload: "
-payload=""
-stty -echo
-while IFS= read -r -n1 char; do
-  if [[ $char == "" || $char == $'\n' ]]; then
-    break
-  fi
-  echo -n "*"
-  payload+="$char"
-done
-stty echo
-echo
-
-decoded_payload=$(echo -n "$payload" | base64 -d)
-
-decrypted_json=$(echo -n "$decoded_payload" | openssl enc -aes-256-cbc -d -a -pbkdf2 -pass pass:"$secret")
-
-# echo "Decrypted JSON:"
-# echo "$decrypted_json"
-
-WORKSPACE_BASE="/workspace"
-ENV_VARS_FILE="$WORKSPACE_BASE/cloudIdeStarterEnvVars.sh"
-
-# Check if the environment variables file exists
 if [[ ! -f "$ENV_VARS_FILE" ]]; then
-  echo "Environment variables file not found. Creating $ENV_VARS_FILE."
-  source ~/.bashrc
-  echo "# Environment variables generated from decrypted JSON" > "$ENV_VARS_FILE"
-  echo "$decrypted_json" | jq -r '.envvars | to_entries[] | "export \(.key)=\(.value)"' >> "$ENV_VARS_FILE"
-fi
+  # Prompt for Secret with asterisks
+  echo -n "Enter Secret: "
+  secret=""
+  stty -echo
+  while IFS= read -r -n1 char; do
+    if [[ $char == "" || $char == $'\n' ]]; then
+      break
+    fi
+    echo -n "*"
+    secret+="$char"
+  done
+  stty echo
+  echo
 
-for SHELL_RC in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.config/fish/config.fish"; do
-  if [[ -f "$SHELL_RC" ]] && ! grep -q "source $ENV_VARS_FILE" "$SHELL_RC"; then
-    echo "source $ENV_VARS_FILE" >> "$SHELL_RC"
-    echo "Added sourcing of $ENV_VARS_FILE to $SHELL_RC."
+  # Prompt for Payload with asterisks
+  echo -n "Enter Payload: "
+  payload=""
+  stty -echo
+  while IFS= read -r -n1 char; do
+    if [[ $char == "" || $char == $'\n' ]]; then
+      break
+    fi
+    echo -n "*"
+    payload+="$char"
+  done
+  stty echo
+  echo
+
+  decoded_payload=$(echo -n "$payload" | base64 -d)
+
+  decrypted_json=$(echo -n "$decoded_payload" | openssl enc -aes-256-cbc -d -a -pbkdf2 -pass pass:"$secret")
+
+  # echo "Decrypted JSON:"
+  # echo "$decrypted_json"
+
+  WORKSPACE_BASE="/workspace"
+  ENV_VARS_FILE="$WORKSPACE_BASE/cloudIdeStarterEnvVars.sh"
+
+  # Check if the environment variables file exists
+  if [[ ! -f "$ENV_VARS_FILE" ]]; then
+    echo "Environment variables file not found. Creating $ENV_VARS_FILE."
+    source ~/.bashrc
+    echo "# Environment variables generated from decrypted JSON" > "$ENV_VARS_FILE"
+    echo "$decrypted_json" | jq -r '.envvars | to_entries[] | "export \(.key)=\(.value)"' >> "$ENV_VARS_FILE"
   fi
-done
 
-source ~/.bashrc
-source $ENV_VARS_FILE
+  for SHELL_RC in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.config/fish/config.fish"; do
+    if [[ -f "$SHELL_RC" ]] && ! grep -q "source $ENV_VARS_FILE" "$SHELL_RC"; then
+      echo "source $ENV_VARS_FILE" >> "$SHELL_RC"
+      echo "Added sourcing of $ENV_VARS_FILE to $SHELL_RC."
+    fi
+  done
+
+  source ~/.bashrc
+  source $ENV_VARS_FILE
+
+  cd $WORKSPACE_BASE
+  pwd
+  git clone $CLOUD_IDE_STARTER_INITIAL_REPO
+fi
 
 cd $WORKSPACE_BASE
 pwd
-git clone $CLOUD_IDE_STARTER_INITIAL_REPO
 REPO_NAME=$(basename -s .git "$CLOUD_IDE_STARTER_INITIAL_REPO")
 cd "$REPO_NAME"
 $CLOUD_IDE_STARTER_INITAL_SCRIPT
