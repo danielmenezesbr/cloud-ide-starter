@@ -10,7 +10,6 @@ read payload
 
 decoded_payload=$(echo -n "$payload" | base64 -d)
 
-
 decrypted_json=$(echo -n "$decoded_payload" | openssl enc -aes-256-cbc -d -a -pbkdf2 -pass pass:"$secret")
 
 # echo "Decrypted JSON:"
@@ -27,10 +26,12 @@ if [[ ! -f "$ENV_VARS_FILE" ]]; then
   echo "$decrypted_json" | jq -r '.envvars | to_entries[] | "export \(.key)=\(.value)"' >> "$ENV_VARS_FILE"
 fi
 
-if ! grep -q "source $ENV_VARS_FILE" "$HOME/.bashrc"; then
-  echo "source $ENV_VARS_FILE" >> "$HOME/.bashrc"
-  echo "Added sourcing of $ENV_VARS_FILE to $HOME/.bashrc."
-fi
+for SHELL_RC in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.config/fish/config.fish"; do
+  if [[ -f "$SHELL_RC" ]] && ! grep -q "source $ENV_VARS_FILE" "$SHELL_RC"; then
+    echo "source $ENV_VARS_FILE" >> "$SHELL_RC"
+    echo "Added sourcing of $ENV_VARS_FILE to $SHELL_RC."
+  fi
+done
 
 source ~/.bashrc
 source $ENV_VARS_FILE
