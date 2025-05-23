@@ -1,12 +1,33 @@
 #!/bin/bash
 set -e
 
+# Prompt for Secret with asterisks
 echo -n "Enter Secret: "
-read -s secret
+secret=""
+stty -echo
+while IFS= read -r -n1 char; do
+  if [[ $char == "" || $char == $'\n' ]]; then
+    break
+  fi
+  echo -n "*"
+  secret+="$char"
+done
+stty echo
 echo
 
+# Prompt for Payload with asterisks
 echo -n "Enter Payload: "
-read payload
+payload=""
+stty -echo
+while IFS= read -r -n1 char; do
+  if [[ $char == "" || $char == $'\n' ]]; then
+    break
+  fi
+  echo -n "*"
+  payload+="$char"
+done
+stty echo
+echo
 
 decoded_payload=$(echo -n "$payload" | base64 -d)
 
