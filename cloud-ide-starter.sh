@@ -38,6 +38,10 @@ if [[ ! -f "$ENV_VARS_FILE" ]]; then
   stty echo
   echo
 
+  if [[ "${payload: -1}" != "=" ]]; then
+    payload="${payload}="
+  fi
+
   decoded_payload=$(echo -n "$payload" | base64 -d)
 
   decrypted_json=$(echo -n "$decoded_payload" | openssl enc -aes-256-cbc -d -a -pbkdf2 -pass pass:"$secret")
