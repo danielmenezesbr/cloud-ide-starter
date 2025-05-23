@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -e
 
 echo -n "Enter Secret: "
 read -s secret
