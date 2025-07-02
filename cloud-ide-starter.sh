@@ -69,7 +69,7 @@ if [[ ! -f "$ENV_VARS_FILE" ]]; then
 
   cd $WORKSPACE_BASE
   pwd
-  git clone $CLOUD_IDE_STARTER_INITIAL_REPO
+  git clone https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@${CLOUD_IDE_STARTER_INITIAL_REPO#https://}
 fi
 
 cd $WORKSPACE_BASE
