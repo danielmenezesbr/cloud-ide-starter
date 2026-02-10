@@ -54,7 +54,7 @@ if [[ ! -f "$ENV_VARS_FILE" ]]; then
     echo "Environment variables file not found. Creating $ENV_VARS_FILE."
     source ~/.bashrc
     echo "# Environment variables generated from decrypted JSON" > "$ENV_VARS_FILE"
-    echo "$decrypted_json" | jq -r '.envvars | to_entries[] | "export \(.key)=\(.value)"' >> "$ENV_VARS_FILE"
+    echo "$decrypted_json" | jq -r '.envvars | to_entries[] | "export \(.key)=\"\(.value)\""' >> "$ENV_VARS_FILE"
   fi
 
   for SHELL_RC in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.config/fish/config.fish"; do
