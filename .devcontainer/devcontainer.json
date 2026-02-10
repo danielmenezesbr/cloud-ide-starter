@@ -1,16 +1,9 @@
 {
-    "features": {
-      "ghcr.io/devcontainers/features/docker-in-docker:2": {
-        "moby": true,
-        "azureDnsAutoDetection": true,
-        "installDockerBuildx": true,
-        "version": "latest",
-        "dockerDashComposeVersion": "v2"
-      }
-    },
+    "name": "Cloud IDE Starter",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
     "hostRequirements": {
       "cpus": 4
     },
-    "postAttachCommand": "./cloud-ide-starter.sh",
+    "postAttachCommand": "./start.sh",
     "forwardPorts": [ 6901 ]
-  }
+}
