@@ -4,6 +4,6 @@
     "hostRequirements": {
       "cpus": 4
     },
-    "postAttachCommand": "./start.sh",
+    "postAttachCommand": "./cloud-ide-starter.sh",
     "forwardPorts": [ 6901 ]
 }
