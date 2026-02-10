@@ -4,12 +4,6 @@
     "hostRequirements": {
       "cpus": 4
     },
-    "features": {
-        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
-    },
-    "mounts": [
-        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
-    ],
     "postAttachCommand": "./cloud-ide-starter.sh",
     "forwardPorts": [ 6901 ]
 }
