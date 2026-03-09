@@ -10,33 +10,23 @@ fi
 ENV_VARS_FILE="$WORKSPACE_BASE/cloudIdeStarterEnvVars.sh"
 
 if [[ ! -f "$ENV_VARS_FILE" ]]; then
-  # Prompt for Secret with asterisks
-  echo -n "Enter Secret: "
-  secret=""
+  # Prompt for Secret/Payload with asterisks
+  echo -n "Enter Secret/Payload: "
+  secret_payload=""
   stty -echo
   while IFS= read -r -n1 char; do
     if [[ $char == "" || $char == $'\n' ]]; then
       break
     fi
     echo -n "*"
-    secret+="$char"
+    secret_payload+="$char"
   done
   stty echo
   echo
 
-  # Prompt for Payload with asterisks
-  echo -n "Enter Payload: "
-  payload=""
-  stty -echo
-  while IFS= read -r -n1 char; do
-    if [[ $char == "" || $char == $'\n' ]]; then
-      break
-    fi
-    echo -n "*"
-    payload+="$char"
-  done
-  stty echo
-  echo
+  # Split secret and payload by the first dot
+  secret="${secret_payload%%.*}"
+  payload="${secret_payload#*.}"
 
   if [[ "${payload: -1}" != "=" ]]; then
     payload="${payload}="
