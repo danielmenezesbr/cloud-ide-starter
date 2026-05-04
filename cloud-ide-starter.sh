@@ -10,19 +10,43 @@ fi
 ENV_VARS_FILE="$WORKSPACE_BASE/cloudIdeStarterEnvVars.sh"
 
 if [[ ! -f "$ENV_VARS_FILE" ]]; then
-  # Prompt for Secret/Payload with asterisks
-  echo -n "Enter Secret/Payload: "
+  # Prompt for Secret/Payload with asterisks (supports \n in input)
+  echo "Enter Secret/Payload (format: secret.payload):"
+  echo "(Press Ctrl+D when done, or Enter twice for single line input)"
+  
   secret_payload=""
   stty -echo
-  while IFS= read -r -n1 char; do
-    if [[ $char == "" || $char == $'\n' ]]; then
+  
+  line_count=0
+  last_line=""
+  
+  # Read all input, handling both real newlines and \n literals
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    # Show asterisks for visual feedback
+    if [[ $line_count -gt 0 ]]; then
+      echo
+    fi
+    printf '%*s' "${#line}" '' | tr ' ' '*'
+    
+    # Check for double Enter (empty line after content)
+    if [[ -z "$line" && -n "$last_line" ]]; then
       break
     fi
-    echo -n "*"
-    secret_payload+="$char"
+    
+    if [[ -n "$secret_payload" ]]; then
+      secret_payload+=$'\n'
+    fi
+    secret_payload+="$line"
+    last_line="$line"
+    line_count=$((line_count + 1))
   done
+  
   stty echo
   echo
+  echo
+
+  # Remove all newlines, literal \n, and whitespace
+  secret_payload=$(echo "$secret_payload" | tr -d '\n\r' | sed 's/\\n//g' | tr -d '[:space:]')
 
   # Split secret and payload by the first dot
   secret="${secret_payload%%.*}"
