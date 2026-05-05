@@ -10,53 +10,30 @@ fi
 ENV_VARS_FILE="$WORKSPACE_BASE/cloudIdeStarterEnvVars.sh"
 
 if [[ ! -f "$ENV_VARS_FILE" ]]; then
-  # Prompt for Secret/Payload with asterisks (supports \n in input)
   echo "Enter Secret/Payload (format: secret.payload):"
-  echo "(Press Ctrl+D when done, or Enter twice for single line input)"
-  
-  secret_payload=""
-  stty -echo
-  
-  line_count=0
-  last_line=""
-  
-  # Read all input, handling both real newlines and \n literals
-  while IFS= read -r line || [[ -n "$line" ]]; do
-    # Show asterisks for visual feedback
-    if [[ $line_count -gt 0 ]]; then
-      echo
-    fi
-    printf '%*s' "${#line}" '' | tr ' ' '*'
-    
-    # Check for double Enter (empty line after content)
-    if [[ -z "$line" && -n "$last_line" ]]; then
-      break
-    fi
-    
-    if [[ -n "$secret_payload" ]]; then
-      secret_payload+=$'\n'
-    fi
-    secret_payload+="$line"
-    last_line="$line"
-    line_count=$((line_count + 1))
-  done
-  
-  stty echo
-  echo
-  echo
-
-  # Remove all newlines, literal \n, and whitespace
-  secret_payload=$(echo "$secret_payload" | tr -d '\n\r' | sed 's/\\n//g' | tr -d '[:space:]')
+  IFS= read -r secret_payload
 
   # Split secret and payload by the first dot
+  if [[ "$secret_payload" != *"."* ]]; then
+    echo "ERROR: Input does not contain a dot separator. Expected format: secret.payload"
+    return 1
+  fi
+
   secret="${secret_payload%%.*}"
   payload="${secret_payload#*.}"
+
+  # echo "Secret and payload received. Processing..."
+  # echo "Secret (daniel): $secret"
+  # echo "Payload (daniel): $payload"
+  # return 0
 
   if [[ "${payload: -1}" != "=" ]]; then
     payload="${payload}="
   fi
 
   decoded_payload=$(echo -n "$payload" | base64 -d)
+
+  # echo "Decoded payload (daniel): $decoded_payload"
 
   decrypted_json=$(echo -n "$decoded_payload" | openssl enc -aes-256-cbc -d -a -pbkdf2 -pass pass:"$secret")
 
