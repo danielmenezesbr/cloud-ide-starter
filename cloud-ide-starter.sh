@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 WORKSPACE_BASE="/workspace"
 
@@ -22,9 +22,9 @@ if [[ ! -f "$ENV_VARS_FILE" ]]; then
   secret="${secret_payload%%.*}"
   payload="${secret_payload#*.}"
 
-  # echo "Secret and payload received. Processing..."
-  # echo "Secret (daniel): $secret"
-  # echo "Payload (daniel): $payload"
+  echo "Secret and payload received. Processing..."
+  echo "Secret (daniel): $secret"
+  echo "Payload (daniel): $payload"
   # return 0
 
   if [[ "${payload: -1}" != "=" ]]; then
