@@ -35,59 +35,33 @@ if [[ ! -f "$ENV_VARS_FILE" ]]; then
   secret="${secret_payload%%.*}"
   payload="${secret_payload#*.}"
 
-  while [[ -n "$payload" && "${payload: -1}" != "=" ]]; do
-    echo "Payload does not end with '=' yet. Paste the continuation and press Enter (or type END to cancel):"
-    IFS= read -r payload_more
-    if [[ "$payload_more" == "END" ]]; then
-      echo "ERROR: payload must end with '='."
-      return 1 2>/dev/null || exit 1
-    fi
-    payload+=$(printf '%s' "$payload_more" | tr -d '\r\n[:space:]')
-  done
+  # while [[ -n "$payload" && "${payload: -1}" != "=" ]]; do
+  #   echo "Payload does not end with '=' yet. Paste the continuation and press Enter (or type END to cancel):"
+  #   IFS= read -r payload_more
+  #   if [[ "$payload_more" == "END" ]]; then
+  #     echo "ERROR: payload must end with '='."
+  #     return 1 2>/dev/null || exit 1
+  #   fi
+  #   payload+=$(printf '%s' "$payload_more" | tr -d '\r\n[:space:]')
+  # done
 
   echo "Secret and payload received. Processing..."
   echo "Payload length: ${#payload}"
 
-  # if [[ "${payload: -1}" != "=" ]]; then
-  #   payload="${payload}="
-  # fi
-
-  #decoded_payload=$(echo -n "$payload" | base64 -d)
-
-  # echo "Decoded payload (daniel): $decoded_payload"
-
   # Remove line breaks from pasted input.
-  payload_clean=$(printf '%s' "$payload" | tr -d '\r\n')
+  #payload_clean=$(printf '%s' "$payload" | tr -d '\r\n')
+  payload_clean=$payload
 
-  if ! printf '%s' "$payload_clean" | base64 -d > /tmp/first_decode.bin 2>/tmp/first_decode.err; then
-    echo "Error in 1st base64 decode:"
-    cat /tmp/first_decode.err
-    return 1 2>/dev/null || exit 1
-  fi
-
-  if ! base64 -d < /tmp/first_decode.bin > /tmp/second_decode.bin 2>/tmp/second_decode.err; then
-    echo "Error in 2nd base64 decode. Input is likely truncated/incomplete."
-    cat /tmp/second_decode.err
-    echo "Tip: provide the full value in /tmp/payload.txt."
-    return 1 2>/dev/null || exit 1
-  fi
-
-  if ! openssl enc -aes-256-cbc -d -pbkdf2 -pass pass:"$secret" < /tmp/second_decode.bin > /tmp/decrypted.json 2>/tmp/openssl_decrypt.err; then
-    echo "Error in OpenSSL decrypt:"
+  # Decrypt: base64 -d (outer layer) | openssl -d -a (inner base64 layer + AES decrypt)
+  # This mirrors the encrypt: openssl -a (AES encrypt + base64) | base64 (outer layer)
+  if ! printf '%s' "$payload_clean" | base64 -d | base64 -d | openssl enc -aes-256-cbc -d -pbkdf2 -pass pass:"$secret" > /tmp/decrypted.json 2>/tmp/openssl_decrypt.err; then
+    echo "Error decrypting payload:"
     cat /tmp/openssl_decrypt.err
+    echo "Tip: ensure the full value is present in /tmp/payload.txt."
     return 1 2>/dev/null || exit 1
   fi
 
   decrypted_json=$(cat /tmp/decrypted.json)
-
-  #decrypted_json=$(printf %s "$payload" | base64 -d | base64 -d)
-
-  # echo $decrypted_json
-  # echo "done"
-  # return 0 2>/dev/null || exit 0
-
-  # echo "Decrypted JSON:"
-  # echo "$decrypted_json"
 
   # Check if the environment variables file exists
   if [[ ! -f "$ENV_VARS_FILE" ]]; then
